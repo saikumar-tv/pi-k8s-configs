@@ -3,8 +3,8 @@ image:
   tag: "57212aa"
 resources:
   requests:
-    memory: 1Gi
-    cpu: "1"
+    memory: 128Mi
+    cpu: "0.1" # 100m
 service:
   name: backend
   port: 5000
@@ -16,7 +16,10 @@ hpa:
 
 affinity: {}
 
-secrets: []
+secrets:
+  - name: backend-secret
+    envVar: BACKEND_SECRET
+configMapName: backend-configmap
   # Example:
   # - name: MY_AZURE_SECRET_NAME
   #   envVar: MY_APP_SECRET_ENV_VAR

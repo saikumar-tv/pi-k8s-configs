@@ -3,8 +3,8 @@ image:
   tag: "57212aa"
 resources:
   requests:
-    memory: 2Gi
-    cpu: "2"
+    memory: 128Mi
+    cpu: "0.1" # 100m
 service:
   name: frontend
   port: 5173
