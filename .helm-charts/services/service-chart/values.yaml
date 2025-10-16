@@ -1,0 +1,15 @@
+replicaCount: 1
+image:
+  tag: "latest"
+resources:
+  requests:
+    memory: 1Gi
+    cpu: "1"
+service:
+  name: default-service
+  port: 80
+hpa:
+  minReplicas: 1
+  maxReplicas: 5
+  targetcpu: 70
+configMapName: default-cm
