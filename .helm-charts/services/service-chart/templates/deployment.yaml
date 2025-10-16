@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.service.name }}
+  name: {{ .Values.service.name }}
+  namespace: prod
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ .Values.service.name }}
+    spec:
+      containers:
+      - image: pipocwebapp.azurecr.io/{{ .Values.service.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "{{ .Values.resources.requests.memory }}"
+            cpu: "{{ .Values.resources.requests.cpu }}"
+        name: {{ .Values.service.name }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        env:
+        {{- range .Values.secrets }}
+          - name: {{ .envVar }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .name }}
+                key: {{ .name }}
+        {{- end }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Values.configMapName }}
+      serviceAccountName: prod

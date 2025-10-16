@@ -1,0 +1,14 @@
+replicaCount: 1
+image:
+  tag: "57212aa"
+resources:
+  requests:
+    memory: 2Gi
+    cpu: "2"
+service:
+  name: frontend
+  port: 5173
+hpa:
+  minReplicas: 1
+  maxReplicas: 5
+  targetcpu: 70 

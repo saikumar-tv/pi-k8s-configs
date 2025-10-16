@@ -1,0 +1,22 @@
+replicaCount: 1
+image:
+  tag: "57212aa"
+resources:
+  requests:
+    memory: 1Gi
+    cpu: "1"
+service:
+  name: backend
+  port: 5000
+configMapName: backend-cm
+hpa:
+  minReplicas: 1
+  maxReplicas: 5
+  targetcpu: 70 
+
+affinity: {}
+
+secrets: []
+  # Example:
+  # - name: MY_AZURE_SECRET_NAME
+  #   envVar: MY_APP_SECRET_ENV_VAR
