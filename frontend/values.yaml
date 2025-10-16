@@ -8,6 +8,7 @@ resources:
 service:
   name: frontend
   port: 5173
+  type: LoadBalancer
 hpa:
   minReplicas: 1
   maxReplicas: 5

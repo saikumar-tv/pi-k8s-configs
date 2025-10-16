@@ -39,10 +39,26 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: mongodb-persistent-storage
               mountPath: /data/db
+          {{- if .Values.azureKeyVault.enabled }}
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+          {{- end }}
+          env:
+          {{- if .Values.azureKeyVault.enabled }}
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mongodb-chart.fullname" . }}-akv-secret
+                  key: mongodb-admin-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mongodb-chart.fullname" . }}-akv-secret
+                  key: mongodb-admin-password
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -56,9 +72,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.persistence.enabled }}
       volumes:
         - name: mongodb-persistent-storage
           persistentVolumeClaim:
             claimName: {{ include "mongodb-chart.fullname" . }}-pvc
+      {{- if .Values.azureKeyVault.enabled }}
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "mongodb-chart.fullname" . }}-akv
       {{- end }}

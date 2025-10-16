@@ -13,3 +13,9 @@ hpa:
   maxReplicas: 5
   targetcpu: 70
 configMapName: default-cm
+
+azureKeyVault:
+  enabled: false
+  tenantId: ""
+  keyVaultName: ""
+  objects: []

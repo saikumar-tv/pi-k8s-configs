@@ -8,18 +8,21 @@ resources:
 service:
   name: backend
   port: 5000
-configMapName: backend-cm
+  type: ClusterIP
 hpa:
   minReplicas: 1
   maxReplicas: 5
   targetcpu: 70 
 
 affinity: {}
-
-secrets:
-  - name: backend-secret
-    envVar: BACKEND_SECRET
-configMapName: backend-configmap
-  # Example:
-  # - name: MY_AZURE_SECRET_NAME
-  #   envVar: MY_APP_SECRET_ENV_VAR
+azureKeyVault:
+  enabled: true
+  tenantId: "189d905e-849b-4745-ad7e-f7bf3c9d3aab"
+  keyVaultName: "kv-pocpi-prod"
+  objects:
+    - objectName: "backend-mongodb-uri"
+      objectType: "secret"
+      objectVersion: ""
+    - objectName: "backend-cors-origin"
+      objectType: "secret"
+      objectVersion: ""

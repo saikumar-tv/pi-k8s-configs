@@ -18,7 +18,14 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.azureKeyVault.enabled }}
+        secrets-store.csi.k8s.io/enable: "true"
+        secrets-store.csi.k8s.io/secret-provider-class: "{{ include "service-chart.fullname" . }}-akv"
+        {{- end }}
       labels:
         app: {{ .Values.service.name }}
     spec:
@@ -32,6 +39,12 @@ spec:
         name: {{ .Values.service.name }}
         ports:
         - containerPort: {{ .Values.service.port }}
+        volumeMounts:
+        {{- if .Values.azureKeyVault.enabled }}
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+        {{- end }}
         env:
         {{- range .Values.secrets }}
           - name: {{ .envVar }}
@@ -40,7 +53,28 @@ spec:
                 name: {{ .name }}
                 key: {{ .name }}
         {{- end }}
+        {{- if .Values.azureKeyVault.enabled }}
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "service-chart.fullname" . }}-akv-secret
+                key: backend-mongodb-uri
+          - name: CORS_ORIGIN
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "service-chart.fullname" . }}-akv-secret
+                key: backend-cors-origin
+        {{- end }}
         envFrom:
           - configMapRef:
               name: {{ .Values.configMapName }}
       serviceAccountName: prod
+      volumes:
+      {{- if .Values.azureKeyVault.enabled }}
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "service-chart.fullname" . }}-akv
+      {{- end }}

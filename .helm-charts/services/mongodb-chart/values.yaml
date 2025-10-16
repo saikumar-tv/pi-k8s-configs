@@ -27,3 +27,15 @@ autoscaling:
 serviceAccount:
   create: false
   name: ""
+
+azureKeyVault:
+  enabled: false
+  tenantId: "189d905e-849b-4745-ad7e-f7bf3c9d3aab"
+  keyVaultName: "kv-pocpi-prod"
+  objects:
+    - objectName: "mongodb-admin-username"
+      objectType: "secret"
+      objectVersion: ""
+    - objectName: "mongodb-admin-password"
+      objectType: "secret"
+      objectVersion: ""
